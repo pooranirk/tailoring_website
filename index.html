@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Priya Stitchique - Royal Boutique & Tailoring Studio</title>
+  <meta name="description" content="Priya Stitchique - Premium custom tailoring for Chudi, Aari Work Blouses, Designer Blouses, and Bridal Lehengas. Client and order tracking system.">
+  
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+  
+  <!-- Vue 3 Offline + CDN Fallback -->
+  <script src="js/vue.global.prod.js"></script>
+  <script>if(typeof Vue === 'undefined') { document.write('<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"><\/script>'); }</script>
+</head>
+<body>
+  <div id="app" class="app-wrapper">
+    
+    <!-- =========================================================
+         TOP NAVIGATION BAR WITH GRAND "P" LOGO
+         ========================================================= -->
+    <header class="navbar">
+      <div class="brand-container" @click="selectedType = 'All'; selectedPaymentStatus = 'All'">
+        <!-- Royal Grand "P" Monogram Logo (SVG Vector) -->
+        <div class="grand-logo-box" title="Priya Stitchique Royal Monogram">
+          <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="goldMonogram" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#fff5cc" />
+                <stop offset="35%" stop-color="#e5c158" />
+                <stop offset="70%" stop-color="#c59b27" />
+                <stop offset="100%" stop-color="#8a6812" />
+              </linearGradient>
+              <linearGradient id="needleGold" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#ffffff" />
+                <stop offset="50%" stop-color="#f6e27a" />
+                <stop offset="100%" stop-color="#b8860b" />
+              </linearGradient>
+              <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="2.5" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+              </filter>
+            </defs>
+
+            <!-- Royal Outer Filigree Circle -->
+            <circle cx="50" cy="50" r="46" stroke="url(#goldMonogram)" stroke-width="1.8" stroke-dasharray="3 3" opacity="0.85" />
+            <circle cx="50" cy="50" r="43" stroke="url(#goldMonogram)" stroke-width="2" />
+            <circle cx="50" cy="50" r="40" stroke="url(#goldMonogram)" stroke-width="0.8" opacity="0.6" />
+
+            <!-- Crown at Crest -->
+            <path d="M41 21 L43.5 26 L50 21.5 L56.5 26 L59 21 L56.5 29.5 L43.5 29.5 Z" fill="url(#goldMonogram)" />
+            <circle cx="41" cy="20" r="1.2" fill="#fff" />
+            <circle cx="50" cy="19.5" r="1.5" fill="#fff" />
+            <circle cx="59" cy="20" r="1.2" fill="#fff" />
+
+            <!-- Grand Regal Letter 'P' -->
+            <path d="M40 31 H53 C60.5 31 66 35.5 66 42.5 C66 49.5 60.5 54 53 54 H47.5 V69 H40 V31 Z M47.5 37 V48 H52.5 C56.5 48 59 45.8 59 42.5 C59 39.2 56.5 37 52.5 37 H47.5 Z" 
+                  fill="url(#goldMonogram)" 
+                  filter="url(#glow)" />
+
+            <!-- Golden Needle Piercing Through Letter P -->
+            <path d="M34 68 L64 26" stroke="url(#needleGold)" stroke-width="2.2" stroke-linecap="round" />
+            <!-- Needle Eye -->
+            <ellipse cx="61.5" cy="29.5" rx="1.2" ry="3.2" transform="rotate(-45 61.5 29.5)" fill="#180b26" stroke="url(#needleGold)" stroke-width="0.8" />
+
+            <!-- Golden Embroidery Thread Ribbon Swirl -->
+            <path d="M63 28 C67 24 73 26 71 33 C69 40 60 45 62 55 C64 63 70 65 72 68" 
+                  stroke="url(#needleGold)" 
+                  stroke-width="1.2" 
+                  stroke-linecap="round" 
+                  stroke-dasharray="2 1.5" 
+                  fill="none" />
+
+            <!-- Royal Base Stars / Flourish -->
+            <circle cx="50" cy="74" r="2" fill="url(#goldMonogram)" />
+            <circle cx="44" cy="74" r="1.2" fill="url(#goldMonogram)" />
+            <circle cx="56" cy="74" r="1.2" fill="url(#goldMonogram)" />
+          </svg>
+        </div>
+
+        <!-- Boutique Name & Tagline -->
+        <div class="brand-text-block">
+          <span class="brand-title">Priya Stitchique</span>
+          <span class="brand-tagline">Haute Couture & Bridal Studio</span>
+        </div>
+      </div>
+
+      <!-- Action Buttons in Nav -->
+      <div class="nav-actions">
+        <!-- Dark / Light Theme Toggle -->
+        <button class="btn-icon-only" @click="toggleTheme" :title="isDarkMode ? 'Switch to Luxury Cream Pearl' : 'Switch to Royal Velvet Dark'">
+          <svg v-if="isDarkMode" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+
+        <!-- New Client Order Button -->
+        <button class="btn-gold" @click="openAddModal()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          New Client Order
+        </button>
+      </div>
+    </header>
+
+    <!-- =========================================================
+         STUDIO BANNER & SUMMARY CARDS
+         ========================================================= -->
+    <section class="studio-banner">
+      <div class="banner-content">
+        <h1>Welcome to <span>Priya Stitchique</span></h1>
+        <p class="banner-subtitle">
+          Bespoke tailoring management for Chudis, Handcrafted Aari Work Blouses, Designer Blouses & Bridal Lehengas.
+        </p>
+      </div>
+
+      <!-- Live Order Statistics -->
+      <div class="stats-grid">
+        <div class="stat-pill">
+          <div class="stat-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+              <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <div class="stat-number">{{ stats.total }}</div>
+            <div class="stat-label">Total Orders</div>
+          </div>
+        </div>
+
+        <div class="stat-pill">
+          <div class="stat-icon success">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <div class="stat-number">{{ stats.paid }}</div>
+            <div class="stat-label">Paid Orders</div>
+          </div>
+        </div>
+
+        <div class="stat-pill" style="border-color: rgba(239, 68, 68, 0.4);">
+          <div class="stat-icon alert">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <div class="stat-number" style="color: #f87171;">{{ stats.unpaid }}</div>
+            <div class="stat-label">Unpaid ({{ formatCurrency(stats.unpaidDue) }})</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         OUTFIT SPECIALTY CATEGORIES (CHUDI, AARI WORK BLOUSE, BLOUSE, LEHANGA)
+         ========================================================= -->
+    <section class="services-showcase">
+      <div class="section-head">
+        <h2 class="section-title">Studio Specialties & Quick Filter</h2>
+        <span style="font-size: 0.85rem; color: var(--text-muted);">Click category to filter client orders</span>
+      </div>
+
+      <div class="outfit-types-grid">
+        <!-- Chudi -->
+        <div class="outfit-card" 
+             :class="{ 'active-filter': selectedType === 'Chudi' }"
+             @click="selectTypeFilter('Chudi')">
+          <div class="outfit-card-top">
+            <div class="outfit-icon-badge">
+              <!-- Needle & Thread SVG Icon -->
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M12 2L15 5L8 12L5 9L12 2Z" />
+                <path d="M8 12L3 21L12 16" />
+                <circle cx="13.5" cy="3.5" r="0.8" fill="currentColor" />
+              </svg>
+            </div>
+            <span class="outfit-count">{{ getOutfitTypeCount('Chudi') }} Orders</span>
+          </div>
+          <h3>Chudi</h3>
+          <p>Punjabi suits, straight cut chudidhar, lining pant, gather salwar, umbrella & custom neck patterns.</p>
+          <div class="outfit-card-footer">
+            <span>Filter List</span>
+            <span>&rarr;</span>
+          </div>
+        </div>
+
+        <!-- Aari Work Blouse -->
+        <div class="outfit-card" 
+             :class="{ 'active-filter': selectedType === 'Aari Work Blouse' }"
+             @click="selectTypeFilter('Aari Work Blouse')">
+          <div class="outfit-card-top">
+            <div class="outfit-icon-badge">
+              <!-- Crown / Jewel SVG Icon -->
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M6 3h12l4 6-10 13L2 9z" />
+                <path d="M11 3L8 9l4 13 4-13-3-6" />
+                <path d="M2 9h20" />
+              </svg>
+            </div>
+            <span class="outfit-count">{{ getOutfitTypeCount('Aari Work Blouse') }} Orders</span>
+          </div>
+          <h3>Aari Work Blouse</h3>
+          <p>Royal Maggam bridal hand-embroidery, zardosi work, pearl moti beads, kundan stones & neck tracing.</p>
+          <div class="outfit-card-footer">
+            <span>Filter List</span>
+            <span>&rarr;</span>
+          </div>
+        </div>
+
+        <!-- Blouse -->
+        <div class="outfit-card" 
+             :class="{ 'active-filter': selectedType === 'Blouse' }"
+             @click="selectTypeFilter('Blouse')">
+          <div class="outfit-card-top">
+            <div class="outfit-icon-badge">
+              <!-- Scissors SVG Icon -->
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <circle cx="6" cy="6" r="3" />
+                <circle cx="6" cy="18" r="3" />
+                <line x1="20" y1="4" x2="8.12" y2="15.88" />
+                <line x1="14.47" y1="14.48" x2="20" y2="20" />
+                <line x1="8.12" y1="8.12" x2="12" y2="12" />
+              </svg>
+            </div>
+            <span class="outfit-count">{{ getOutfitTypeCount('Blouse') }} Orders</span>
+          </div>
+          <h3>Blouse</h3>
+          <p>Classic 4-darts, princess cut, boat neck, back knot dori, potli buttons, high neck & elbow sleeves.</p>
+          <div class="outfit-card-footer">
+            <span>Filter List</span>
+            <span>&rarr;</span>
+          </div>
+        </div>
+
+        <!-- Lehenga -->
+        <div class="outfit-card" 
+             :class="{ 'active-filter': selectedType === 'Lehenga' }"
+             @click="selectTypeFilter('Lehenga')">
+          <div class="outfit-card-top">
+            <div class="outfit-icon-badge">
+              <!-- Dress / Star Sparkle SVG Icon -->
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+              </svg>
+            </div>
+            <span class="outfit-count">{{ getOutfitTypeCount('Lehenga') }} Orders</span>
+          </div>
+          <h3>Lehenga</h3>
+          <p>Grand bridal flared skirt, customized can-can layering, designer crop top, dupatta border finishing.</p>
+          <div class="outfit-card-footer">
+            <span>Filter List</span>
+            <span>&rarr;</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         CLIENT ORDERS MANAGEMENT SECTION
+         ========================================================= -->
+    <section class="management-panel">
+      <!-- Search, Filters and View Toggle -->
+      <div class="controls-bar">
+        <!-- Search Input -->
+        <div class="search-box">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input 
+            type="text" 
+            v-model="searchQuery" 
+            class="search-input" 
+            placeholder="Search client name or phone number..." 
+          />
+        </div>
+
+        <!-- Filters (Type & Payment Status) -->
+        <div class="filter-group">
+          <!-- Outfit Type Filter -->
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span class="filter-label">Outfit:</span>
+            <select v-model="selectedType" class="filter-select">
+              <option value="All">All Outfits ({{ stats.total }})</option>
+              <option value="Chudi">Chudi ({{ getOutfitTypeCount('Chudi') }})</option>
+              <option value="Aari Work Blouse">Aari Work Blouse ({{ getOutfitTypeCount('Aari Work Blouse') }})</option>
+              <option value="Blouse">Blouse ({{ getOutfitTypeCount('Blouse') }})</option>
+              <option value="Lehenga">Lehenga ({{ getOutfitTypeCount('Lehenga') }})</option>
+            </select>
+          </div>
+
+          <!-- Payment Status Filter (Paid / Unpaid) -->
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span class="filter-label">Payment:</span>
+            <select v-model="selectedPaymentStatus" class="filter-select">
+              <option value="All">All Status ({{ stats.total }})</option>
+              <option value="Paid">Paid Only ({{ stats.paid }})</option>
+              <option value="Unpaid">Unpaid Only ({{ stats.unpaid }})</option>
+            </select>
+          </div>
+
+          <!-- Grid / Table View Switcher -->
+          <div class="segmented-control">
+            <button 
+              class="seg-btn" 
+              :class="{ active: viewMode === 'grid' }"
+              @click="viewMode = 'grid'"
+              title="Card Grid View">
+              Cards
+            </button>
+            <button 
+              class="seg-btn" 
+              :class="{ active: viewMode === 'table' }"
+              @click="viewMode = 'table'"
+              title="Table View">
+              Table
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active Filter Reset Notice -->
+      <div v-if="selectedType !== 'All' || selectedPaymentStatus !== 'All' || searchQuery" style="margin-bottom: 18px; display: flex; align-items: center; gap: 10px; font-size: 0.88rem;">
+        <span style="color: var(--gold-light);">
+          Showing {{ filteredOrders.length }} result(s)
+          <span v-if="selectedType !== 'All'">for <strong>{{ selectedType }}</strong></span>
+          <span v-if="selectedPaymentStatus !== 'All'">with <strong>{{ selectedPaymentStatus }}</strong> status</span>
+        </span>
+        <button 
+          style="background: transparent; border: none; color: #f87171; text-decoration: underline; cursor: pointer; font-size: 0.82rem;"
+          @click="selectedType = 'All'; selectedPaymentStatus = 'All'; searchQuery = ''">
+          Reset Filters
+        </button>
+      </div>
+
+      <!-- =========================================================
+           VIEW MODE 1: ELEGANT CARDS GRID
+           ========================================================= -->
+      <div v-if="viewMode === 'grid'" class="orders-grid">
+        <div v-for="order in filteredOrders" :key="order.id" class="client-order-card">
+          <!-- Card Header: Client Name & Payment Badge -->
+          <div class="card-header-line">
+            <div class="client-name-group">
+              <div class="client-avatar">
+                {{ order.clientName.charAt(0).toUpperCase() }}
+              </div>
+              <div>
+                <h4 class="client-name-text">{{ order.clientName }}</h4>
+                <span class="client-date">Booked: {{ order.createdAt || 'Recent' }}</span>
+              </div>
+            </div>
+
+            <!-- Clickable Paid / Unpaid Status Badge -->
+            <div 
+              class="badge-status" 
+              :class="order.paymentStatus === 'Paid' ? 'badge-paid' : 'badge-unpaid'"
+              @click="togglePaymentStatus(order)"
+              :title="'Click to mark as ' + (order.paymentStatus === 'Paid' ? 'Unpaid' : 'Paid')">
+              <span v-if="order.paymentStatus === 'Paid'">✓ PAID</span>
+              <span v-else>⚠ UNPAID</span>
+            </div>
+          </div>
+
+          <!-- Outfit Type Badge -->
+          <div class="outfit-tag">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="12 2 15 8 21 9 17 14 18 20 12 17 6 20 7 14 3 9 9 8 12 2" />
+            </svg>
+            {{ order.outfitType }}
+          </div>
+
+          <!-- Order Details & Notes -->
+          <div class="card-details-box">
+            <div class="detail-row">
+              <span class="detail-label">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                </svg>
+                Contact:
+              </span>
+              <span class="detail-value">{{ order.phone }}</span>
+            </div>
+
+            <div class="detail-row">
+              <span class="detail-label">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                Delivery:
+              </span>
+              <span class="detail-value">{{ order.deliveryDate || 'Not specified' }}</span>
+            </div>
+
+            <div class="detail-row">
+              <span class="detail-label">Amount:</span>
+              <span class="price-value">{{ formatCurrency(order.amount) }}</span>
+            </div>
+
+            <div v-if="order.notes" style="font-size: 0.8rem; color: var(--text-muted); border-top: 1px dashed rgba(255,255,255,0.08); padding-top: 6px; margin-top: 2px;">
+              <em>"{{ order.notes }}"</em>
+            </div>
+          </div>
+
+          <!-- Bottom Actions: WhatsApp Quick Contact, Phone Call, Edit, Delete -->
+          <div class="card-actions-bar">
+            <!-- Client Contact Buttons -->
+            <div class="contact-quick-btns">
+              <!-- WhatsApp Client Link -->
+              <a :href="getWhatsAppLink(order)" target="_blank" class="btn-contact-action btn-whatsapp" title="Send WhatsApp Update to Client">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12.031 2C6.502 2 2.016 6.486 2.016 12.015c0 1.942.553 3.754 1.516 5.289L2.016 22l4.838-1.503c1.472.879 3.197 1.385 5.039 1.385 5.53 0 10.016-4.486 10.016-10.016C21.909 6.486 17.561 2 12.031 2zm0 18.25c-1.611 0-3.134-.46-4.44-1.258l-.318-.192-3.033.942.946-2.955-.208-.332c-.89-1.42-1.36-3.076-1.36-4.79 0-4.646 3.78-8.427 8.413-8.427 4.633 0 8.413 3.781 8.413 8.427 0 4.647-3.78 8.428-8.413 8.428z" />
+                </svg>
+                WhatsApp
+              </a>
+
+              <!-- Call Client Link -->
+              <a :href="'tel:' + order.phone" class="btn-contact-action btn-call" title="Call Client">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                </svg>
+                Call
+              </a>
+            </div>
+
+            <!-- Card Manage Buttons -->
+            <div class="card-manage-btns">
+              <!-- Edit Order -->
+              <button class="btn-card-small" @click="openEditModal(order)" title="Edit Order Details">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+              </button>
+
+              <!-- Delete Order -->
+              <button class="btn-card-small danger" @click="deleteOrder(order.id)" title="Delete Order">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- =========================================================
+           VIEW MODE 2: PROFESSIONAL TABLE VIEW
+           ========================================================= -->
+      <div v-if="viewMode === 'table'" class="table-responsive">
+        <table class="luxury-table">
+          <thead>
+            <tr>
+              <th>Client Name</th>
+              <th>Outfit Type</th>
+              <th>Payment Status</th>
+              <th>Contact Details</th>
+              <th>Amount</th>
+              <th>Delivery Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="order in filteredOrders" :key="order.id">
+              <td>
+                <strong style="color: var(--text-main); font-size: 1rem;">{{ order.clientName }}</strong>
+                <div v-if="order.notes" style="font-size: 0.78rem; color: var(--text-muted); max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                  {{ order.notes }}
+                </div>
+              </td>
+              <td>
+                <span class="outfit-tag">{{ order.outfitType }}</span>
+              </td>
+              <td>
+                <div 
+                  class="badge-status" 
+                  :class="order.paymentStatus === 'Paid' ? 'badge-paid' : 'badge-unpaid'"
+                  @click="togglePaymentStatus(order)"
+                  :title="'Click to change to ' + (order.paymentStatus === 'Paid' ? 'Unpaid' : 'Paid')">
+                  {{ order.paymentStatus === 'Paid' ? '✓ PAID' : '⚠ UNPAID' }}
+                </div>
+              </td>
+              <td>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span>{{ order.phone }}</span>
+                  <a :href="getWhatsAppLink(order)" target="_blank" class="btn-card-small" style="color: #25d366;" title="WhatsApp">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12.031 2C6.502 2 2.016 6.486 2.016 12.015c0 1.942.553 3.754 1.516 5.289L2.016 22l4.838-1.503c1.472.879 3.197 1.385 5.039 1.385 5.53 0 10.016-4.486 10.016-10.016C21.909 6.486 17.561 2 12.031 2zm0 18.25c-1.611 0-3.134-.46-4.44-1.258l-.318-.192-3.033.942.946-2.955-.208-.332c-.89-1.42-1.36-3.076-1.36-4.79 0-4.646 3.78-8.427 8.413-8.427 4.633 0 8.413 3.781 8.413 8.427 0 4.647-3.78 8.428-8.413 8.428z" />
+                    </svg>
+                  </a>
+                </div>
+              </td>
+              <td class="price-value">{{ formatCurrency(order.amount) }}</td>
+              <td>{{ order.deliveryDate || '—' }}</td>
+              <td>
+                <div style="display: flex; gap: 6px;">
+                  <button class="btn-card-small" @click="openEditModal(order)" title="Edit">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                  </button>
+                  <button class="btn-card-small danger" @click="deleteOrder(order.id)" title="Delete">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="3 6 5 6 21 6"></polyline>
+                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Empty State -->
+      <div v-if="filteredOrders.length === 0" class="empty-state">
+        <div class="empty-state-icon">✧</div>
+        <h3>No matching orders found</h3>
+        <p>Try modifying your search or filter criteria, or add a new order.</p>
+        <button class="btn-gold" style="margin-top: 16px;" @click="openAddModal()">
+          + Add New Client Order
+        </button>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         MODAL: ADD / EDIT CLIENT ORDER
+         ========================================================= -->
+    <div v-if="isModalOpen" class="modal-backdrop" @click.self="closeModal">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3>{{ isEditing ? 'Edit Client Order' : 'New Client Order' }}</h3>
+          <button class="modal-close-btn" @click="closeModal">&times;</button>
+        </div>
+
+        <form @submit.prevent="saveOrder">
+          <div class="modal-body">
+            <!-- Client Name -->
+            <div class="form-field">
+              <label>Client Name *</label>
+              <input 
+                type="text" 
+                v-model="currentForm.clientName" 
+                placeholder="e.g. Priya Ananth, Kavitha Sundar" 
+                required 
+              />
+              <span v-if="formErrors.clientName" style="color: #f87171; font-size: 0.78rem;">
+                {{ formErrors.clientName }}
+              </span>
+            </div>
+
+            <!-- Contact Details -->
+            <div class="form-field">
+              <label>Contact Phone Number *</label>
+              <input 
+                type="tel" 
+                v-model="currentForm.phone" 
+                placeholder="e.g. 98401 23456" 
+                required 
+              />
+              <span v-if="formErrors.phone" style="color: #f87171; font-size: 0.78rem;">
+                {{ formErrors.phone }}
+              </span>
+            </div>
+
+            <!-- Outfit Type & Amount in 2 cols -->
+            <div class="form-row-2">
+              <div class="form-field">
+                <label>Outfit Type *</label>
+                <select v-model="currentForm.outfitType">
+                  <option v-for="type in outfitTypes" :key="type" :value="type">
+                    {{ type }}
+                  </option>
+                </select>
+              </div>
+
+              <div class="form-field">
+                <label>Stitching Amount (₹)</label>
+                <input 
+                  type="number" 
+                  v-model.number="currentForm.amount" 
+                  placeholder="e.g. 1500" 
+                />
+              </div>
+            </div>
+
+            <!-- Payment Status (Paid / Unpaid) -->
+            <div class="form-field">
+              <label>Payment Status *</label>
+              <div class="status-choice-group">
+                <label 
+                  class="status-choice-label paid-choice" 
+                  :class="{ selected: currentForm.paymentStatus === 'Paid' }">
+                  <input 
+                    type="radio" 
+                    value="Paid" 
+                    v-model="currentForm.paymentStatus" 
+                    style="display: none;" 
+                  />
+                  <span>✓ Paid</span>
+                </label>
+
+                <label 
+                  class="status-choice-label unpaid-choice" 
+                  :class="{ selected: currentForm.paymentStatus === 'Unpaid' }">
+                  <input 
+                    type="radio" 
+                    value="Unpaid" 
+                    v-model="currentForm.paymentStatus" 
+                    style="display: none;" 
+                  />
+                  <span>⚠ Unpaid</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Delivery Date -->
+            <div class="form-field">
+              <label>Expected Delivery Date</label>
+              <input 
+                type="date" 
+                v-model="currentForm.deliveryDate" 
+              />
+            </div>
+
+            <!-- Measurements & Design Instructions -->
+            <div class="form-field">
+              <label>Design Notes / Measurements Details</label>
+              <textarea 
+                rows="3" 
+                v-model="currentForm.notes" 
+                placeholder="e.g. Princess cut blouse, back knot dori, peacock Aari work neck, chest 36, waist 30...">
+              </textarea>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn-outline-gold" @click="closeModal">Cancel</button>
+            <button type="submit" class="btn-gold">
+              {{ isEditing ? 'Update Order' : 'Save Client Order' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- =========================================================
+         FOOTER
+         ========================================================= -->
+    <footer class="boutique-footer">
+      <div class="footer-brand">PRIYA STITCHIQUE</div>
+      <p class="footer-text">
+        Exclusive Custom Tailoring for Chudi, Aari Work Blouse, Pattern Blouses & Bridal Lehengas.
+      </p>
+      <p style="font-size: 0.78rem; color: rgba(212, 175, 55, 0.6);">
+        Crafted with precision & elegance.
+      </p>
+    </footer>
+
+  </div>
+
+  <!-- Vue Application Script -->
+  <script src="js/app.js"></script>
+</body>
+</html>
