@@ -1,13 +1,39 @@
 /* ===================================================================
    PRIYA STITCHIQUE - VUE.JS APPLICATION LOGIC
-   Client Order & Outfit Management with LocalStorage Persistence
+   Client Order & Outfit Management with Firebase Firestore & Measurements
    =================================================================== */
+
+// Firebase Configuration provided by user
+const firebaseConfig = {
+  apiKey: "AIzaSyC_jTEk8KEW77b1QsSmV5kJt_5CBZMYxwM",
+  authDomain: "priya-stitchique.firebaseapp.com",
+  projectId: "priya-stitchique",
+  storageBucket: "priya-stitchique.firebasestorage.app",
+  messagingSenderId: "1065955980404",
+  appId: "1:1065955980404:web:dbc1bd0399495749d64d21"
+};
+
+// Initialize Firebase App & Firestore
+let db = null;
+let firebaseInitialized = false;
+
+try {
+  if (typeof firebase !== 'undefined') {
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    db = firebase.firestore();
+    firebaseInitialized = true;
+  }
+} catch (e) {
+  console.warn('Firebase Initialization Notice:', e);
+}
 
 const { createApp, ref, computed, onMounted, watch } = Vue;
 
 createApp({
   setup() {
-    // Outfit Types specified by user: chudi, ari work blouse, blouse, lehanga
+    // Outfit Types
     const outfitTypes = [
       'Chudi',
       'Aari Work Blouse',
@@ -15,7 +41,7 @@ createApp({
       'Lehenga'
     ];
 
-    // Outfit category details (for the visual cards without photos)
+    // Outfit category details
     const outfitCategories = [
       {
         name: 'Chudi',
@@ -43,64 +69,20 @@ createApp({
       }
     ];
 
-    // Initial mock data if localStorage is empty
-    const defaultOrders = [
-      {
-        id: 1,
-        clientName: 'Priya Ananth',
-        outfitType: 'Aari Work Blouse',
-        paymentStatus: 'Paid',
-        phone: '98401 23456',
-        amount: 2800,
-        deliveryDate: '2026-10-25',
-        notes: 'Peacock neck pattern with antique gold zardosi for wedding reception',
-        createdAt: '2026-10-18'
-      },
-      {
-        id: 2,
-        clientName: 'Kavitha Sundar',
-        outfitType: 'Chudi',
-        paymentStatus: 'Unpaid',
-        phone: '98412 87654',
-        amount: 850,
-        deliveryDate: '2026-10-23',
-        notes: 'Chudidhar bottom with rope piping & pocket addition',
-        createdAt: '2026-10-19'
-      },
-      {
-        id: 3,
-        clientName: 'Deepa Ramesh',
-        outfitType: 'Lehenga',
-        paymentStatus: 'Unpaid',
-        phone: '94443 11223',
-        amount: 3500,
-        deliveryDate: '2026-10-28',
-        notes: 'Double can-can flare + high waist lehenga with sweetheart blouse',
-        createdAt: '2026-10-19'
-      },
-      {
-        id: 4,
-        clientName: 'Meena Suresh',
-        outfitType: 'Blouse',
-        paymentStatus: 'Paid',
-        phone: '97890 55443',
-        amount: 550,
-        deliveryDate: '2026-10-22',
-        notes: 'Princess cut blouse with gold piping and potli buttons',
-        createdAt: '2026-10-17'
-      },
-      {
-        id: 5,
-        clientName: 'Soundarya Vijay',
-        outfitType: 'Aari Work Blouse',
-        paymentStatus: 'Unpaid',
-        phone: '98840 99887',
-        amount: 2400,
-        deliveryDate: '2026-10-26',
-        notes: 'Bridal mango motif with pearl bead border work',
-        createdAt: '2026-10-20'
-      }
-    ];
+    // Default empty measurements helper
+    const getEmptyMeasurements = () => ({
+      chest: '',
+      waist: '',
+      hip: '',
+      length: '',
+      shoulder: '',
+      sleeveLength: '',
+      sleeveRound: '',
+      armhole: '',
+      frontNeck: '',
+      backNeck: '',
+      bottomLength: ''
+    });
 
     // Reactive State
     const orders = ref([]);
@@ -109,6 +91,13 @@ createApp({
     const selectedPaymentStatus = ref('All');
     const viewMode = ref('grid'); // 'grid' or 'table'
     const isDarkMode = ref(true);
+    const isLoading = ref(true);
+    const isSaving = ref(false);
+
+    // Firebase Connection Status
+    const firebaseStatus = ref(firebaseInitialized ? 'connecting' : 'offline');
+    const firebaseStatusText = ref(firebaseInitialized ? 'Connecting Cloud...' : 'Local Mode');
+    const firebaseError = ref('');
 
     // Modal & Form State
     const isModalOpen = ref(false);
@@ -122,37 +111,102 @@ createApp({
       phone: '',
       amount: '',
       deliveryDate: '',
-      notes: ''
+      notes: '',
+      measurements: getEmptyMeasurements()
     });
 
-    // Load from LocalStorage
-    onMounted(() => {
+    // Measurement Viewer Modal State
+    const isMeasurementModalOpen = ref(false);
+    const activeMeasurementOrder = ref(null);
+
+    // Load from LocalStorage fallback
+    const loadFromLocalStorage = () => {
       const savedOrders = localStorage.getItem('priya_stitchique_orders');
       if (savedOrders) {
         try {
           orders.value = JSON.parse(savedOrders);
         } catch (e) {
-          orders.value = defaultOrders;
+          orders.value = [];
         }
       } else {
-        orders.value = defaultOrders;
+        orders.value = [];
       }
+      isLoading.value = false;
+    };
 
+    // Save orders to LocalStorage as secondary offline backup
+    const backupToLocalStorage = (data) => {
+      try {
+        localStorage.setItem('priya_stitchique_orders', JSON.stringify(data));
+      } catch (e) {
+        console.warn('LocalStorage backup error:', e);
+      }
+    };
+
+    // Initialize Data & Firestore Real-Time Listener
+    onMounted(() => {
+      // Theme
       const savedTheme = localStorage.getItem('priya_stitchique_theme');
       if (savedTheme === 'light') {
         isDarkMode.value = false;
         document.body.classList.add('theme-light');
       }
-    });
 
-    // Save to LocalStorage whenever orders change
-    watch(
-      orders,
-      (newOrders) => {
-        localStorage.setItem('priya_stitchique_orders', JSON.stringify(newOrders));
-      },
-      { deep: true }
-    );
+      if (db) {
+        firebaseStatus.value = 'connecting';
+        firebaseStatusText.value = 'Connecting Cloud...';
+
+        try {
+          // Listen to 'orders' collection in real-time
+          db.collection('orders').onSnapshot(
+            (snapshot) => {
+              const loadedOrders = [];
+              snapshot.forEach((doc) => {
+                const data = doc.data();
+                loadedOrders.push({
+                  id: doc.id,
+                  clientName: data.clientName || 'Unnamed Client',
+                  outfitType: data.outfitType || 'Chudi',
+                  paymentStatus: data.paymentStatus || 'Unpaid',
+                  phone: data.phone || '',
+                  amount: Number(data.amount) || 0,
+                  deliveryDate: data.deliveryDate || '',
+                  notes: data.notes || '',
+                  measurements: data.measurements || getEmptyMeasurements(),
+                  createdAt: data.createdAt || ''
+                });
+              });
+
+              // Sort by createdAt descending
+              loadedOrders.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+
+              orders.value = loadedOrders;
+              backupToLocalStorage(loadedOrders);
+              isLoading.value = false;
+              firebaseStatus.value = 'connected';
+              firebaseStatusText.value = 'Cloud Sync Live';
+              firebaseError.value = '';
+            },
+            (err) => {
+              console.error('Firestore listener error:', err);
+              firebaseStatus.value = 'error';
+              firebaseStatusText.value = 'Database Setup Required';
+              firebaseError.value = err.message;
+              loadFromLocalStorage();
+            }
+          );
+        } catch (err) {
+          console.error('Firebase setup failed:', err);
+          firebaseStatus.value = 'offline';
+          firebaseStatusText.value = 'Local Mode';
+          loadFromLocalStorage();
+        }
+      } else {
+        firebaseStatus.value = 'offline';
+        firebaseStatusText.value = 'Local Mode';
+        loadFromLocalStorage();
+      }
+    });
 
     // Theme Toggle
     const toggleTheme = () => {
@@ -169,18 +223,15 @@ createApp({
     // Filtered and Searched Orders
     const filteredOrders = computed(() => {
       return orders.value.filter((order) => {
-        // Search matches client name or phone
         const query = searchQuery.value.trim().toLowerCase();
         const matchesSearch =
           !query ||
-          order.clientName.toLowerCase().includes(query) ||
-          order.phone.toLowerCase().includes(query);
+          (order.clientName && order.clientName.toLowerCase().includes(query)) ||
+          (order.phone && order.phone.toLowerCase().includes(query));
 
-        // Filter by Outfit Type
         const matchesType =
           selectedType.value === 'All' || order.outfitType === selectedType.value;
 
-        // Filter by Payment Status (Paid / Unpaid)
         const matchesStatus =
           selectedPaymentStatus.value === 'All' ||
           order.paymentStatus === selectedPaymentStatus.value;
@@ -226,23 +277,40 @@ createApp({
       }
     };
 
-    // Toggle Paid / Unpaid Status directly from card/table
-    const togglePaymentStatus = (order) => {
-      order.paymentStatus = order.paymentStatus === 'Paid' ? 'Unpaid' : 'Paid';
+    // Check if an order has any measurement entered
+    const hasMeasurements = (order) => {
+      if (!order || !order.measurements) return false;
+      return Object.values(order.measurements).some((val) => val && String(val).trim() !== '');
     };
 
-    // Modal Control
+    // Toggle Payment Status (Paid / Unpaid) directly from card/table
+    const togglePaymentStatus = async (order) => {
+      const nextStatus = order.paymentStatus === 'Paid' ? 'Unpaid' : 'Paid';
+      order.paymentStatus = nextStatus;
+
+      if (db && order.id && !String(order.id).startsWith('local_')) {
+        try {
+          await db.collection('orders').doc(String(order.id)).update({
+            paymentStatus: nextStatus
+          });
+        } catch (e) {
+          console.warn('Firestore status update error:', e);
+        }
+      }
+      backupToLocalStorage(orders.value);
+    };
+
+    // Modal Control: Add New Order
     const openAddModal = (presetType = null) => {
       isEditing.value = false;
       formErrors.value = {};
       const today = new Date().toISOString().split('T')[0];
       
-      // Default delivery date 5 days from today
       const defaultDelivery = new Date();
       defaultDelivery.setDate(defaultDelivery.getDate() + 5);
 
       currentForm.value = {
-        id: Date.now(),
+        id: null,
         clientName: '',
         outfitType: presetType || 'Chudi',
         paymentStatus: 'Unpaid',
@@ -250,15 +318,23 @@ createApp({
         amount: '',
         deliveryDate: defaultDelivery.toISOString().split('T')[0],
         notes: '',
+        measurements: getEmptyMeasurements(),
         createdAt: today
       };
       isModalOpen.value = true;
     };
 
+    // Modal Control: Edit Order
     const openEditModal = (order) => {
       isEditing.value = true;
       formErrors.value = {};
-      currentForm.value = { ...order };
+      currentForm.value = {
+        ...order,
+        measurements: {
+          ...getEmptyMeasurements(),
+          ...(order.measurements || {})
+        }
+      };
       isModalOpen.value = true;
     };
 
@@ -266,8 +342,19 @@ createApp({
       isModalOpen.value = false;
     };
 
-    // Validate and Save Order
-    const saveOrder = () => {
+    // Measurement Viewer Modal
+    const openMeasurementModal = (order) => {
+      activeMeasurementOrder.value = order;
+      isMeasurementModalOpen.value = true;
+    };
+
+    const closeMeasurementModal = () => {
+      isMeasurementModalOpen.value = false;
+      activeMeasurementOrder.value = null;
+    };
+
+    // Save Order (Create or Update in Firebase / LocalStorage)
+    const saveOrder = async () => {
       formErrors.value = {};
 
       if (!currentForm.value.clientName.trim()) {
@@ -281,22 +368,86 @@ createApp({
         return;
       }
 
-      if (isEditing.value) {
-        const index = orders.value.findIndex((o) => o.id === currentForm.value.id);
-        if (index !== -1) {
-          orders.value[index] = { ...currentForm.value };
-        }
-      } else {
-        orders.value.unshift({ ...currentForm.value });
-      }
+      isSaving.value = true;
 
-      closeModal();
+      const orderData = {
+        clientName: currentForm.value.clientName.trim(),
+        outfitType: currentForm.value.outfitType,
+        paymentStatus: currentForm.value.paymentStatus,
+        phone: currentForm.value.phone.trim(),
+        amount: Number(currentForm.value.amount) || 0,
+        deliveryDate: currentForm.value.deliveryDate || '',
+        notes: (currentForm.value.notes || '').trim(),
+        measurements: { ...currentForm.value.measurements }
+      };
+
+      try {
+        if (db) {
+          if (isEditing.value && currentForm.value.id && !String(currentForm.value.id).startsWith('local_')) {
+            await db.collection('orders').doc(String(currentForm.value.id)).update({
+              ...orderData,
+              updatedAt: new Date().toISOString()
+            });
+          } else {
+            const today = new Date().toISOString().split('T')[0];
+            await db.collection('orders').add({
+              ...orderData,
+              createdAt: currentForm.value.createdAt || today,
+              timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+          }
+        } else {
+          // Local fallback
+          if (isEditing.value) {
+            const idx = orders.value.findIndex((o) => o.id === currentForm.value.id);
+            if (idx !== -1) {
+              orders.value[idx] = { ...orders.value[idx], ...orderData };
+            }
+          } else {
+            const newOrder = {
+              id: 'local_' + Date.now(),
+              ...orderData,
+              createdAt: currentForm.value.createdAt || new Date().toISOString().split('T')[0]
+            };
+            orders.value.unshift(newOrder);
+          }
+          backupToLocalStorage(orders.value);
+        }
+
+        closeModal();
+      } catch (err) {
+        console.error('Error saving order:', err);
+        alert('Could not save to Firebase: ' + err.message + '\nSaving locally to your browser.');
+        
+        // Save locally as safety net
+        if (isEditing.value) {
+          const idx = orders.value.findIndex((o) => o.id === currentForm.value.id);
+          if (idx !== -1) orders.value[idx] = { ...currentForm.value };
+        } else {
+          orders.value.unshift({ id: 'local_' + Date.now(), ...orderData, createdAt: new Date().toISOString().split('T')[0] });
+        }
+        backupToLocalStorage(orders.value);
+        closeModal();
+      } finally {
+        isSaving.value = false;
+      }
     };
 
     // Delete Order
-    const deleteOrder = (id) => {
+    const deleteOrder = async (id) => {
       if (confirm('Are you sure you want to delete this client order?')) {
-        orders.value = orders.value.filter((o) => o.id !== id);
+        try {
+          if (db && id && !String(id).startsWith('local_')) {
+            await db.collection('orders').doc(String(id)).delete();
+          } else {
+            orders.value = orders.value.filter((o) => o.id !== id);
+            backupToLocalStorage(orders.value);
+          }
+        } catch (err) {
+          console.error('Error deleting order:', err);
+          orders.value = orders.value.filter((o) => o.id !== id);
+          backupToLocalStorage(orders.value);
+        }
       }
     };
 
@@ -306,16 +457,40 @@ createApp({
       return '₹' + Number(val).toLocaleString('en-IN');
     };
 
-    // WhatsApp Message Generator
+    // WhatsApp Message Generator with Measurements
     const getWhatsAppLink = (order) => {
-      // Clean phone number (keep only digits)
       let cleanPhone = order.phone.replace(/[^0-9]/g, '');
       if (cleanPhone.length === 10) {
-        cleanPhone = '91' + cleanPhone; // add India country code if 10 digits
+        cleanPhone = '91' + cleanPhone;
       }
       
-      const message = `Vanakkam ${order.clientName} ji! ✨\nThis is Priya Stitchique regarding your ${order.outfitType} order.\n\nStatus: ${order.paymentStatus === 'Paid' ? 'Paid & Confirmed ✅' : 'Payment Due: ' + formatCurrency(order.amount) + ' ⏳'}\nDelivery Date: ${order.deliveryDate || 'Scheduled soon'}\n\nThank you for choosing Priya Stitchique! 🌸`;
+      let measureText = '';
+      if (order.measurements) {
+        const m = order.measurements;
+        const parts = [];
+        if (m.chest) parts.push(`Chest: ${m.chest}"`);
+        if (m.waist) parts.push(`Waist: ${m.waist}"`);
+        if (m.length) parts.push(`Length: ${m.length}"`);
+        if (m.shoulder) parts.push(`Shoulder: ${m.shoulder}"`);
+        if (m.sleeveLength) parts.push(`Sleeve: ${m.sleeveLength}"`);
+        if (m.frontNeck) parts.push(`Front Neck: ${m.frontNeck}"`);
+        if (m.backNeck) parts.push(`Back Neck: ${m.backNeck}"`);
+        if (m.bottomLength) parts.push(`Bottom: ${m.bottomLength}"`);
+        if (parts.length > 0) {
+          measureText = `\n\n📐 Measurements on File:\n${parts.join(', ')}`;
+        }
+      }
+
+      const designNote = order.notes ? `\nDesign Notes: ${order.notes}` : '';
+
+      const message = `Vanakkam ${order.clientName} ji! ✨\nThis is Priya Stitchique regarding your ${order.outfitType} order.\n\nStatus: ${order.paymentStatus === 'Paid' ? 'Paid & Confirmed ✅' : 'Payment Due: ' + formatCurrency(order.amount) + ' ⏳'}\nExpected Delivery: ${order.deliveryDate || 'Scheduled soon'}${measureText}${designNote}\n\nThank you for choosing Priya Stitchique! 🌸`;
+
       return `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(message)}`;
+    };
+
+    // Print Job Sheet
+    const printJobSheet = () => {
+      window.print();
     };
 
     return {
@@ -328,22 +503,33 @@ createApp({
       selectedPaymentStatus,
       viewMode,
       isDarkMode,
+      isLoading,
+      isSaving,
+      firebaseStatus,
+      firebaseStatusText,
+      firebaseError,
       toggleTheme,
       stats,
       getOutfitTypeCount,
       selectTypeFilter,
+      hasMeasurements,
       togglePaymentStatus,
       isModalOpen,
       isEditing,
       currentForm,
       formErrors,
+      isMeasurementModalOpen,
+      activeMeasurementOrder,
       openAddModal,
       openEditModal,
       closeModal,
+      openMeasurementModal,
+      closeMeasurementModal,
       saveOrder,
       deleteOrder,
       formatCurrency,
-      getWhatsAppLink
+      getWhatsAppLink,
+      printJobSheet
     };
   }
 }).mount('#app');

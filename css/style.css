@@ -944,7 +944,7 @@ body.theme-light .luxury-table thead {
   border: 1px solid var(--gold-primary);
   border-radius: var(--radius-lg);
   width: 100%;
-  max-width: 580px;
+  max-width: 680px;
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), var(--shadow-gold);
   overflow: hidden;
   position: relative;
@@ -1132,6 +1132,8 @@ body.theme-light .form-field textarea {
   .nav-actions {
     width: 100%;
     justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
   }
   
   .studio-banner {
@@ -1145,4 +1147,267 @@ body.theme-light .form-field textarea {
   .orders-grid {
     grid-template-columns: 1fr;
   }
+
+  .measurement-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
 }
+
+/* ===================================================================
+   FIREBASE LIVE STATUS INDICATOR
+   =================================================================== */
+.firebase-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(4px);
+}
+
+.firebase-status-badge .status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.firebase-status-badge.connected {
+  border-color: rgba(34, 197, 94, 0.35);
+  color: #4ade80;
+  background: rgba(34, 197, 94, 0.1);
+}
+.firebase-status-badge.connected .status-dot {
+  background: #22c55e;
+  box-shadow: 0 0 8px #22c55e;
+  animation: pulse-dot 2s infinite ease-in-out;
+}
+
+.firebase-status-badge.connecting {
+  border-color: rgba(234, 179, 8, 0.35);
+  color: #facc15;
+  background: rgba(234, 179, 8, 0.1);
+}
+.firebase-status-badge.connecting .status-dot {
+  background: #eab308;
+  animation: pulse-dot 1s infinite ease-in-out;
+}
+
+.firebase-status-badge.error,
+.firebase-status-badge.offline {
+  border-color: rgba(239, 68, 68, 0.35);
+  color: #f87171;
+  background: rgba(239, 68, 68, 0.1);
+}
+.firebase-status-badge.error .status-dot,
+.firebase-status-badge.offline .status-dot {
+  background: #ef4444;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+/* ===================================================================
+   BODY MEASUREMENTS SECTION IN MODAL
+   =================================================================== */
+.measurement-section-box {
+  background: rgba(212, 175, 55, 0.04);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.section-divider-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--gold-light);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  border-bottom: 1px dashed rgba(212, 175, 55, 0.2);
+  padding-bottom: 8px;
+}
+
+.measurement-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 540px) {
+  .measurement-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.measure-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.measure-field label {
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.input-with-unit {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-with-unit input {
+  width: 100%;
+  padding: 8px 30px 8px 10px !important;
+  font-size: 0.88rem !important;
+  background: rgba(10, 4, 18, 0.7) !important;
+  border: 1px solid rgba(212, 175, 55, 0.2) !important;
+  border-radius: var(--radius-sm) !important;
+  color: var(--text-main) !important;
+  text-align: left;
+}
+
+body.theme-light .input-with-unit input {
+  background: #ffffff !important;
+}
+
+.input-with-unit span.unit {
+  position: absolute;
+  right: 10px;
+  font-size: 0.72rem;
+  color: var(--gold-primary);
+  font-weight: 600;
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+/* ===================================================================
+   MEASUREMENT PREVIEW & JOB CARD MODAL
+   =================================================================== */
+.btn-measure-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  background: rgba(212, 175, 55, 0.12);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  color: var(--gold-light);
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-measure-pill:hover {
+  background: var(--gold-primary);
+  color: #12061f;
+  transform: translateY(-1px);
+}
+
+.job-slip-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.job-slip-item {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.job-slip-item .label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.job-slip-item .val {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--gold-light);
+  font-family: var(--font-serif-royal);
+}
+
+.empty-measurement-hint {
+  padding: 20px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  border: 1px dashed rgba(212, 175, 55, 0.2);
+  border-radius: 8px;
+}
+
+/* ===================================================================
+   PRINT STYLES FOR TAILORING WORKSHOP JOB CARD
+   =================================================================== */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .modal-backdrop,
+  .modal-dialog,
+  .modal-dialog * {
+    visibility: visible;
+  }
+  .modal-backdrop {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    background: transparent !important;
+    padding: 0;
+  }
+  .modal-dialog {
+    max-width: 100% !important;
+    border: 2px solid #000 !important;
+    box-shadow: none !important;
+    color: #000 !important;
+    background: #fff !important;
+  }
+  .modal-header,
+  .modal-body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+  .modal-header h3,
+  .modal-header .modal-close-btn,
+  .modal-footer {
+    display: none !important;
+  }
+  .job-slip-item {
+    border: 1px solid #333 !important;
+    background: #fdfdfd !important;
+  }
+  .job-slip-item .val {
+    color: #000 !important;
+  }
+  .badge-status {
+    border: 1px solid #000 !important;
+    color: #000 !important;
+  }
+}
+
+
