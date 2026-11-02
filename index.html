@@ -85,18 +85,12 @@
         <!-- Boutique Name & Tagline -->
         <div class="brand-text-block">
           <span class="brand-title">Priya Stitchique</span>
-          <span class="brand-tagline">Haute Couture & Bridal Studio</span>
+          <span class="brand-tagline">Stitch by Stitch, Dream by Dream</span>
         </div>
       </div>
 
       <!-- Action Buttons in Nav -->
       <div class="nav-actions">
-        <!-- Live Firebase Cloud Sync Status -->
-        <div class="firebase-status-badge" :class="firebaseStatus" :title="firebaseError || firebaseStatusText">
-          <span class="status-dot"></span>
-          <span>{{ firebaseStatusText }}</span>
-        </div>
-
         <!-- Dark / Light Theme Toggle -->
         <button class="btn-icon-only" @click="toggleTheme" :title="isDarkMode ? 'Switch to Luxury Cream Pearl' : 'Switch to Royal Velvet Dark'">
           <svg v-if="isDarkMode" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -181,110 +175,44 @@
     </section>
 
     <!-- =========================================================
-         OUTFIT SPECIALTY CATEGORIES (CHUDI, AARI WORK BLOUSE, BLOUSE, LEHANGA)
+         DESIGN INSPIRATION GALLERY (IMAGES FROM IMAGES FOLDER)
          ========================================================= -->
     <section class="services-showcase">
       <div class="section-head">
-        <h2 class="section-title">Studio Specialties & Quick Filter</h2>
-        <span style="font-size: 0.85rem; color: var(--text-muted);">Click category to filter client orders</span>
+        <h2 class="section-title">Design Inspirations</h2>
+        <span style="font-size: 0.85rem; color: var(--text-muted);">Our stitching patterns &amp; styles</span>
       </div>
 
-      <div class="outfit-types-grid">
-        <!-- Chudi -->
-        <div class="outfit-card" 
-             :class="{ 'active-filter': selectedType === 'Chudi' }"
-             @click="selectTypeFilter('Chudi')">
-          <div class="outfit-card-top">
-            <div class="outfit-icon-badge">
-              <!-- Needle & Thread SVG Icon -->
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                <path d="M12 2L15 5L8 12L5 9L12 2Z" />
-                <path d="M8 12L3 21L12 16" />
-                <circle cx="13.5" cy="3.5" r="0.8" fill="currentColor" />
+      <div class="inspiration-gallery">
+        <div 
+          v-for="(design, idx) in designGallery" 
+          :key="idx" 
+          class="inspiration-card"
+          @click="openImagePreview(design)"
+          role="button"
+          tabindex="0"
+          :title="'View ' + design.title"
+          @keydown.enter="openImagePreview(design)"
+        >
+          <div class="inspiration-img-wrap">
+            <img :src="design.image" :alt="design.title" class="inspiration-img" loading="lazy" />
+            <div class="inspiration-zoom-overlay">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                <line x1="11" y1="8" x2="11" y2="14"></line>
+                <line x1="8" y1="11" x2="14" y2="11"></line>
               </svg>
+              <span>View Image</span>
             </div>
-            <span class="outfit-count">{{ getOutfitTypeCount('Chudi') }} Orders</span>
           </div>
-          <h3>Chudi</h3>
-          <p>Punjabi suits, straight cut chudidhar, lining pant, gather salwar, umbrella & custom neck patterns.</p>
-          <div class="outfit-card-footer">
-            <span>Filter List</span>
-            <span>&rarr;</span>
-          </div>
-        </div>
-
-        <!-- Aari Work Blouse -->
-        <div class="outfit-card" 
-             :class="{ 'active-filter': selectedType === 'Aari Work Blouse' }"
-             @click="selectTypeFilter('Aari Work Blouse')">
-          <div class="outfit-card-top">
-            <div class="outfit-icon-badge">
-              <!-- Crown / Jewel SVG Icon -->
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                <path d="M6 3h12l4 6-10 13L2 9z" />
-                <path d="M11 3L8 9l4 13 4-13-3-6" />
-                <path d="M2 9h20" />
-              </svg>
-            </div>
-            <span class="outfit-count">{{ getOutfitTypeCount('Aari Work Blouse') }} Orders</span>
-          </div>
-          <h3>Aari Work Blouse</h3>
-          <p>Royal Maggam bridal hand-embroidery, zardosi work, pearl moti beads, kundan stones & neck tracing.</p>
-          <div class="outfit-card-footer">
-            <span>Filter List</span>
-            <span>&rarr;</span>
-          </div>
-        </div>
-
-        <!-- Blouse -->
-        <div class="outfit-card" 
-             :class="{ 'active-filter': selectedType === 'Blouse' }"
-             @click="selectTypeFilter('Blouse')">
-          <div class="outfit-card-top">
-            <div class="outfit-icon-badge">
-              <!-- Scissors SVG Icon -->
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                <circle cx="6" cy="6" r="3" />
-                <circle cx="6" cy="18" r="3" />
-                <line x1="20" y1="4" x2="8.12" y2="15.88" />
-                <line x1="14.47" y1="14.48" x2="20" y2="20" />
-                <line x1="8.12" y1="8.12" x2="12" y2="12" />
-              </svg>
-            </div>
-            <span class="outfit-count">{{ getOutfitTypeCount('Blouse') }} Orders</span>
-          </div>
-          <h3>Blouse</h3>
-          <p>Classic 4-darts, princess cut, boat neck, back knot dori, potli buttons, high neck & elbow sleeves.</p>
-          <div class="outfit-card-footer">
-            <span>Filter List</span>
-            <span>&rarr;</span>
-          </div>
-        </div>
-
-        <!-- Lehenga -->
-        <div class="outfit-card" 
-             :class="{ 'active-filter': selectedType === 'Lehenga' }"
-             @click="selectTypeFilter('Lehenga')">
-          <div class="outfit-card-top">
-            <div class="outfit-icon-badge">
-              <!-- Dress / Star Sparkle SVG Icon -->
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-              </svg>
-            </div>
-            <span class="outfit-count">{{ getOutfitTypeCount('Lehenga') }} Orders</span>
-          </div>
-          <h3>Lehenga</h3>
-          <p>Grand bridal flared skirt, customized can-can layering, designer crop top, dupatta border finishing.</p>
-          <div class="outfit-card-footer">
-            <span>Filter List</span>
-            <span>&rarr;</span>
+          <div class="inspiration-label">
+            <span>{{ design.title }}</span>
           </div>
         </div>
       </div>
     </section>
-
-    <!-- =========================================================
+        <!-- =========================================================
          CLIENT ORDERS MANAGEMENT SECTION
          ========================================================= -->
     <section class="management-panel">
@@ -892,6 +820,22 @@
           <div style="display: flex; gap: 8px;">
             <button class="btn-outline-gold" @click="printJobSheet()">🖨 Print Slip</button>
             <button class="btn-gold" @click="closeMeasurementModal">Done</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================================================
+         MODAL: DESIGN IMAGE PREVIEW LIGHTBOX
+         ========================================================= -->
+    <div v-if="previewImage" class="modal-backdrop" @click.self="closeImagePreview">
+      <div class="image-preview-dialog">
+        <button class="image-preview-close" @click="closeImagePreview" title="Close Preview">&times;</button>
+        <div class="image-preview-content">
+          <img :src="previewImage.image" :alt="previewImage.title" class="image-preview-img" />
+          <div class="image-preview-bar">
+            <span class="image-preview-title">{{ previewImage.title }}</span>
+            <span class="image-preview-tag">{{ previewImage.category }}</span>
           </div>
         </div>
       </div>

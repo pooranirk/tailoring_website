@@ -84,19 +84,56 @@ createApp({
       bottomLength: ''
     });
 
+    // Design Inspiration Gallery (Local images from images/ folder)
+    const designGallery = [
+      {
+        title: 'Blouse Design 1',
+        category: 'Blouse',
+        image: 'images/blouse design.png'
+      },
+      {
+        title: 'Blouse Design 2',
+        category: 'Blouse',
+        image: 'images/blouse design2.png'
+      },
+      {
+        title: 'Chudidhar Design',
+        category: 'Chudi',
+        image: 'images/chudi.png'
+      },
+      {
+        title: 'Lehenga Design',
+        category: 'Lehenga',
+        image: 'images/lehanga.png'
+      },
+      {
+        title: 'Priya Stitchique Design',
+        category: 'Signature',
+        image: 'images/priya stitchque image.png'
+      }
+    ];
+
+    const previewImage = ref(null);
+    const openImagePreview = (design) => {
+      previewImage.value = design;
+    };
+    const closeImagePreview = () => {
+      previewImage.value = null;
+    };
+
     // Reactive State
     const orders = ref([]);
     const searchQuery = ref('');
     const selectedType = ref('All');
     const selectedPaymentStatus = ref('All');
     const viewMode = ref('grid'); // 'grid' or 'table'
-    const isDarkMode = ref(true);
+    const isDarkMode = ref(false); // Default: Light mode (cream pearl)
     const isLoading = ref(true);
     const isSaving = ref(false);
 
-    // Firebase Connection Status
+    // Firebase Connection Status (hidden from UI, kept for internal use)
     const firebaseStatus = ref(firebaseInitialized ? 'connecting' : 'offline');
-    const firebaseStatusText = ref(firebaseInitialized ? 'Connecting Cloud...' : 'Local Mode');
+    const firebaseStatusText = ref(firebaseInitialized ? 'Connecting...' : 'Local Mode');
     const firebaseError = ref('');
 
     // Modal & Form State
@@ -145,9 +182,12 @@ createApp({
 
     // Initialize Data & Firestore Real-Time Listener
     onMounted(() => {
-      // Theme
+      // Theme - Default is light mode (cream pearl)
       const savedTheme = localStorage.getItem('priya_stitchique_theme');
-      if (savedTheme === 'light') {
+      if (savedTheme === 'dark') {
+        isDarkMode.value = true;
+      } else {
+        // Default: light mode
         isDarkMode.value = false;
         document.body.classList.add('theme-light');
       }
@@ -219,7 +259,6 @@ createApp({
         localStorage.setItem('priya_stitchique_theme', 'light');
       }
     };
-
     // Filtered and Searched Orders
     const filteredOrders = computed(() => {
       return orders.value.filter((order) => {
@@ -529,7 +568,11 @@ createApp({
       deleteOrder,
       formatCurrency,
       getWhatsAppLink,
-      printJobSheet
+      printJobSheet,
+      designGallery,
+      previewImage,
+      openImagePreview,
+      closeImagePreview
     };
   }
 }).mount('#app');
